@@ -15,7 +15,7 @@
           Combooks
         </q-toolbar-title>
 
-        <div>v0.1.7</div>
+        <div>v0.1.8</div>
       </q-toolbar>
     </q-header>
 
@@ -30,7 +30,7 @@
           header
           class="text-grey-8"
         >
-          Essential Links
+          More..
         </q-item-label>
         <EssentialLink
           v-for="link in essentialLinks"
@@ -63,7 +63,7 @@ export default {
         {
           title: 'Author Page',
           caption: 'Transion.cc',
-          icon: 'school',
+          icon: 'person',
           link: 'https://transion.cc'
         }
       ]

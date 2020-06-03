@@ -1,8 +1,10 @@
-# Combooks (combooks)
+# Combooks (梳书)
 
 A simple local e-book(PDFs) search and management tool built by Electron and Vue.
 
-Current Version: 0.1.7
+一个由 Electron 和 Vue 构建的简单本地电子书搜索及管理工具。
+
+Current Version: 0.1.8
 
 ## Install the dependencies
 ```bash

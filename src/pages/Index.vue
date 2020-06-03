@@ -1,7 +1,7 @@
 <template>
   <q-page class="">
     <div class="" style="max-width: 900px; margin-left: auto; margin-right: auto">
-      <div style="height: 50px">
+      <div style="height: 20px">
       </div>
 
       <div class="q-ma-md">
@@ -23,10 +23,10 @@
           </q-form>
         </div>
 
-        <div style="height: 50px">
+        <div style="height: 10px">
         </div>
 
-        <div v-if="booksPath.length !== 0">
+        <div class="q-ma-md" v-if="booksPath.length !== 0">
           <!-- <div>共有 {{tableData.length}} 条记录</div> -->
           <q-table
             title="PDFs List"
@@ -34,6 +34,7 @@
             :columns="tableColumns"
             :filter="filter"
             @row-click="openBook"
+            no-data-label="Please complete the input and press Enter"
           >
             <template v-slot:top-right>
               <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -87,6 +88,10 @@ export default {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
       }
+      // const fs = require('fs')
+      // fs.writeFile('async_add.txt', JSON.stringify(this.tableData, null, 2), (err) => {
+      //   if (err) throw err
+      // })
     },
     onChange () {
       this.tableData = []
