@@ -31,6 +31,7 @@
             title="PDFs List"
             :data="tableData"
             :filter="filter"
+            @row-click="openBook"
           >
             <template v-slot:top-right>
               <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -78,6 +79,7 @@ export default {
           if (stat.isFile()) {
             if (path.extname(fileName).toLowerCase() === '.pdf') {
               this.tableData.push({
+                filePath: path.join(filePath, fileName),
                 fileName: fileName,
                 filesize: stat.size
               })
@@ -86,6 +88,11 @@ export default {
         }
         this.isLoading = false
       })
+    },
+    openBook (evt, row) {
+      const { shell } = require('electron')
+      const fp = JSON.parse(JSON.stringify(row.filePath))
+      shell.openExternal(fp)
     }
   }
 }
