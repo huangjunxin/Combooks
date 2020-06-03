@@ -2,7 +2,7 @@
 
 A simple local e-book(PDFs) search and management tool built by Electron and Vue.
 
-Current Version: 0.1.4
+Current Version: 0.1.7
 
 ## Install the dependencies
 ```bash

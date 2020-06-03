@@ -14,6 +14,7 @@
                 v-model="booksPath"
                 standard
                 placeholder="Please enter the path"
+                @input="onChange"
             >
               <!-- <template v-slot:append>
                 <q-icon name="booksPath" />
@@ -55,6 +56,7 @@ export default {
   data () {
     return {
       booksPath: '',
+      lastBooksPath: '',
       isLoading: false,
       tableData: [],
       tableColumns: [
@@ -78,7 +80,17 @@ export default {
 
   methods: {
     onSubmit () {
-      this.listingFile(this.booksPath)
+      if (this.lastBooksPath === '') {
+        this.lastBooksPath = this.booksPath
+        this.listingFile(this.booksPath)
+      } else if (this.lastBooksPath !== this.booksPath) {
+        this.lastBooksPath = this.booksPath
+        this.listingFile(this.booksPath)
+      }
+    },
+    onChange () {
+      this.tableData = []
+      this.lastBooksPath = ''
     },
     listingFile (filePath) {
       this.isLoading = true
@@ -89,7 +101,6 @@ export default {
           this.isLoading = false
           return alert(err)
         }
-        this.tableData = []
         for (const fileName of file) {
           const stat = fs.statSync(path.join(filePath, fileName))
           if (stat.isFile()) {
@@ -100,6 +111,9 @@ export default {
                 fileSize: stat.size
               })
             }
+          } else {
+            // 递归遍历子文件夹
+            this.listingFile(path.join(filePath, fileName))
           }
         }
         this.isLoading = false
