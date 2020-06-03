@@ -30,6 +30,7 @@
           <q-table
             title="PDFs List"
             :data="tableData"
+            :columns="tableColumns"
             :filter="filter"
             @row-click="openBook"
           >
@@ -56,6 +57,21 @@ export default {
       booksPath: '',
       isLoading: false,
       tableData: [],
+      tableColumns: [
+        {
+          name: 'fileName',
+          label: 'File Name',
+          field: 'fileName',
+          align: 'left',
+          sortable: true
+        },
+        {
+          name: 'fileSize',
+          label: 'File Size',
+          field: 'fileSize',
+          sortable: true
+        }
+      ],
       filter: ''
     }
   },
@@ -81,7 +97,7 @@ export default {
               this.tableData.push({
                 filePath: path.join(filePath, fileName),
                 fileName: fileName,
-                filesize: stat.size
+                fileSize: stat.size
               })
             }
           }
@@ -92,7 +108,7 @@ export default {
     openBook (evt, row) {
       const { shell } = require('electron')
       const fp = JSON.parse(JSON.stringify(row.filePath))
-      shell.openExternal(fp)
+      shell.openPath(fp)
     }
   }
 }
