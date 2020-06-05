@@ -35,6 +35,7 @@
             :filter="filter"
             @row-click="openBook"
             no-data-label="Please complete the input and press Enter"
+            :loading="isLoading"
           >
             <template v-slot:top-right>
               <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -88,10 +89,6 @@ export default {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
       }
-      // const fs = require('fs')
-      // fs.writeFile('async_add.txt', JSON.stringify(this.tableData, null, 2), (err) => {
-      //   if (err) throw err
-      // })
     },
     onChange () {
       this.tableData = []
@@ -114,6 +111,9 @@ export default {
                 filePath: path.join(filePath, fileName),
                 fileName: fileName,
                 fileSize: stat.size
+              })
+              fs.writeFile('table_data.json', JSON.stringify(this.tableData, null, 2), (err) => {
+                if (err) throw err
               })
             }
           } else {
