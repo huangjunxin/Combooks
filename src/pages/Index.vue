@@ -81,6 +81,7 @@ export default {
   },
 
   methods: {
+    // 当路径框提交内容时
     onSubmit () {
       if (this.lastBooksPath === '') {
         this.lastBooksPath = this.booksPath
@@ -90,10 +91,12 @@ export default {
         this.listingFile(this.booksPath)
       }
     },
+    // 当路径框的内容发生变化时
     onChange () {
       this.tableData = []
       this.lastBooksPath = ''
     },
+    // 遍历当前目录下的所有PDF文件
     listingFile (filePath) {
       this.isLoading = true
       const fs = require('fs')
@@ -107,14 +110,21 @@ export default {
           const stat = fs.statSync(path.join(filePath, fileName))
           if (stat.isFile()) {
             if (path.extname(fileName).toLowerCase() === '.pdf') {
-              this.tableData.push({
+              const fileInfo = {
                 filePath: path.join(filePath, fileName),
                 fileName: fileName,
                 fileSize: stat.size
-              })
-              fs.writeFile('table_data.json', JSON.stringify(this.tableData, null, 2), (err) => {
-                if (err) throw err
-              })
+              }
+              this.tableData.push(fileInfo)
+              // 若当前数据不在数据库中，则写入数据库
+              const getFileInfo = this.$db.get('tableDataDB')
+                .find(fileInfo)
+                .value()
+              if (getFileInfo === undefined) {
+                this.$db.get('tableDataDB')
+                  .insert(fileInfo)
+                  .write()
+              }
             }
           } else {
             // 递归遍历子文件夹
@@ -124,6 +134,7 @@ export default {
         this.isLoading = false
       })
     },
+    // 点击表格行以打开电子书
     openBook (evt, row) {
       const { shell } = require('electron')
       const fp = JSON.parse(JSON.stringify(row.filePath))

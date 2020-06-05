@@ -3,6 +3,10 @@ import VueRouter from 'vue-router'
 
 import routes from './routes'
 
+// 引入lowdb
+import db from '../datastore'
+Vue.prototype.$db = db
+
 Vue.use(VueRouter)
 
 /*
