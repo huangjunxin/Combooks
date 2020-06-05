@@ -119,14 +119,14 @@ export default {
       if (this.lastBooksPath === '') {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
-        this.updatePathHistory()
+        this.addPathHistory()
       } else if (this.lastBooksPath !== this.booksPath) {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
-        this.updatePathHistory()
+        this.addPathHistory()
       }
     },
-    updatePathHistory () {
+    addPathHistory () {
       const pathInfo = {
         path: this.booksPath,
         time: Date.now()
@@ -139,6 +139,14 @@ export default {
           .insert(pathInfo)
           .write()
       }
+    },
+    updatePathHistory () {
+      this.$db.get('pathHistoryDataDB')
+        .find({ path: this.booksPath })
+        .assign({
+          time: Date.now()
+        })
+        .value()
     },
     // 当路径框的内容发生变化时
     onChange () {
@@ -193,9 +201,11 @@ export default {
       const fp = JSON.parse(JSON.stringify(row.filePath))
       shell.openPath(fp)
     },
+    // 点击某条路径历史记录时，则重新检索，并更新历史记录
     openPath (evt, row) {
       this.booksPath = row.path
       this.onSubmit()
+      this.updatePathHistory()
     }
   }
 }
