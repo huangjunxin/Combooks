@@ -9,12 +9,12 @@ const db = Datastore(adapter)
 
 db._.mixin(LodashId)
 
-if (!db.has('tableDataDB').value()) {
-  db.set('tableDataDB', []).write()
+if (!db.has('bookListDataDB').value()) {
+  db.set('bookListDataDB', []).write()
 }
 
-if (!db.has('booksPathHistoryDB').value()) {
-  db.set('booksPathHistoryDB', []).write()
+if (!db.has('pathHistoryDataDB').value()) {
+  db.set('pathHistoryDataDB', []).write()
 }
 
 export default db

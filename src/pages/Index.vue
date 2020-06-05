@@ -26,18 +26,29 @@
         <div style="height: 10px">
         </div>
 
+        <div class="q-ma-md" v-if="booksPath.length === 0">
+          <q-table
+            title="Path History"
+            :data="pathHistoryData"
+            :columns="pathHistoryColumns"
+            @row-click="openPath"
+            no-data-label="No History"
+            :pagination="initPathHistory"
+            binary-state-sort />
+        </div>
+
         <div class="q-ma-md" v-if="booksPath.length !== 0">
-          <!-- <div>共有 {{tableData.length}} 条记录</div> -->
+          <!-- <div>共有 {{bookListData.length}} 条记录</div> -->
           <q-table
             title="PDFs List"
-            :data="tableData"
-            :columns="tableColumns"
+            :data="bookListData"
+            :columns="bookListColumns"
             :filter="filter"
             @row-click="openBook"
             no-data-label="Please complete the input and press Enter"
             :loading="isLoading"
           >
-            <template v-slot:top-right>
+            <template v-slot:top-right v-if="booksPath.length !== 0">
               <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
                   <q-icon name="search" />
@@ -60,8 +71,8 @@ export default {
       booksPath: '',
       lastBooksPath: '',
       isLoading: false,
-      tableData: [],
-      tableColumns: [
+      bookListData: [],
+      bookListColumns: [
         {
           name: 'fileName',
           label: 'File Name',
@@ -76,25 +87,67 @@ export default {
           sortable: true
         }
       ],
+      pathHistoryData: [],
+      pathHistoryColumns: [
+        {
+          name: 'path',
+          label: 'Path',
+          field: 'path',
+          align: 'left',
+          sortable: true
+        },
+        {
+          name: 'time',
+          label: 'Time',
+          field: 'time',
+          sortable: true
+        }
+      ],
+      initPathHistory: {
+        sortBy: 'time',
+        descending: true
+      },
       filter: ''
     }
   },
-
+  mounted () {
+    this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
+  },
   methods: {
     // 当路径框提交内容时
     onSubmit () {
       if (this.lastBooksPath === '') {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
+        this.updatePathHistory()
       } else if (this.lastBooksPath !== this.booksPath) {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
+        this.updatePathHistory()
+      }
+    },
+    updatePathHistory () {
+      const pathInfo = {
+        path: this.booksPath,
+        time: Date.now()
+      }
+      const getPathInfo = this.$db.get('pathHistoryDataDB')
+        .find({ path: this.booksPath })
+        .value()
+      if (getPathInfo === undefined) {
+        this.$db.get('pathHistoryDataDB')
+          .insert(pathInfo)
+          .write()
       }
     },
     // 当路径框的内容发生变化时
     onChange () {
-      this.tableData = []
+      this.bookListData = []
       this.lastBooksPath = ''
+      // 若路径框的内容为空，则将路径历史从数据库重新取出
+      if (this.booksPath === '') {
+        this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
+      }
     },
     // 遍历当前目录下的所有PDF文件
     listingFile (filePath) {
@@ -115,13 +168,13 @@ export default {
                 fileName: fileName,
                 fileSize: stat.size
               }
-              this.tableData.push(fileInfo)
+              this.bookListData.push(fileInfo)
               // 若当前数据不在数据库中，则写入数据库
-              const getFileInfo = this.$db.get('tableDataDB')
+              const getFileInfo = this.$db.get('bookListDataDB')
                 .find(fileInfo)
                 .value()
               if (getFileInfo === undefined) {
-                this.$db.get('tableDataDB')
+                this.$db.get('bookListDataDB')
                   .insert(fileInfo)
                   .write()
               }
@@ -139,6 +192,10 @@ export default {
       const { shell } = require('electron')
       const fp = JSON.parse(JSON.stringify(row.filePath))
       shell.openPath(fp)
+    },
+    openPath (evt, row) {
+      this.booksPath = row.path
+      this.onSubmit()
     }
   }
 }
