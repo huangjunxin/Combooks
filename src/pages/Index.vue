@@ -26,7 +26,7 @@
         <div style="height: 10px">
         </div>
 
-        <div class="q-ma-md" v-if="booksPath.length === 0">
+        <div class="q-ma-md" v-show="booksPath.length === 0">
           <q-table
             title="Path History"
             :data="pathHistoryData"
@@ -37,7 +37,7 @@
             binary-state-sort />
         </div>
 
-        <div class="q-ma-md" v-if="booksPath.length !== 0">
+        <div class="q-ma-md" v-show="booksPath.length !== 0">
           <!-- <div>共有 {{bookListData.length}} 条记录</div> -->
           <q-table
             title="PDFs List"
@@ -48,7 +48,7 @@
             :no-data-label="bookListNoDataInfo"
             :loading="isLoading"
           >
-            <template v-slot:top-right v-if="booksPath.length !== 0">
+            <template v-slot:top-right v-show="booksPath.length !== 0">
               <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
                 <template v-slot:append>
                   <q-icon name="search" />
@@ -113,6 +113,7 @@ export default {
   },
   mounted () {
     this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
+    window.vue = this
   },
   methods: {
     // 当路径框提交内容时
@@ -164,33 +165,34 @@ export default {
         if (err) {
           this.isLoading = false
           this.bookListNoDataInfo = 'No such file or directory'
-        }
-        for (const fileName of file) {
-          const stat = fs.statSync(path.join(filePath, fileName))
-          if (stat.isFile()) {
-            if (path.extname(fileName).toLowerCase() === '.pdf') {
-              const fileInfo = {
-                filePath: path.join(filePath, fileName),
-                fileName: fileName,
-                fileSize: stat.size
+        } else {
+          for (const fileName of file) {
+            const stat = fs.statSync(path.join(filePath, fileName))
+            if (stat.isFile()) {
+              if (path.extname(fileName).toLowerCase() === '.pdf') {
+                const fileInfo = {
+                  filePath: path.join(filePath, fileName),
+                  fileName: fileName,
+                  fileSize: stat.size
+                }
+                this.bookListData.push(fileInfo)
+                // 若当前数据不在数据库中，则写入数据库
+                const getFileInfo = this.$db.get('bookListDataDB')
+                  .find(fileInfo)
+                  .value()
+                if (getFileInfo === undefined) {
+                  this.$db.get('bookListDataDB')
+                    .insert(fileInfo)
+                    .write()
+                }
               }
-              this.bookListData.push(fileInfo)
-              // 若当前数据不在数据库中，则写入数据库
-              const getFileInfo = this.$db.get('bookListDataDB')
-                .find(fileInfo)
-                .value()
-              if (getFileInfo === undefined) {
-                this.$db.get('bookListDataDB')
-                  .insert(fileInfo)
-                  .write()
-              }
+            } else {
+              // 递归遍历子文件夹
+              this.listingFile(path.join(filePath, fileName))
             }
-          } else {
-            // 递归遍历子文件夹
-            this.listingFile(path.join(filePath, fileName))
-          }
-          if (this.bookListData.length === 0) {
-            this.bookListNoDataInfo = 'No PDF found'
+            if (this.bookListData.length === 0) {
+              this.bookListNoDataInfo = 'No PDF found'
+            }
           }
         }
         this.isLoading = false
@@ -205,7 +207,7 @@ export default {
     // 点击某条路径历史记录时，则重新检索，并更新历史记录
     openPath (evt, row) {
       this.booksPath = row.path
-      this.onSubmit()
+      this.listingFile(row.path)
       this.updatePathHistory()
     }
   }
