@@ -113,24 +113,26 @@ export default {
   },
   mounted () {
     this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
-    window.vue = this
+    // 仅调试时启用
+    // window.vue = this
   },
   methods: {
     // 当路径框提交内容时
     onSubmit () {
-      if (this.lastBooksPath === '' || this.lastBooksPath !== this.booksPath) {
+      if (this.booksPath.length > 0 && (this.lastBooksPath === '' || this.lastBooksPath !== this.booksPath)) {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
         this.addPathHistory()
       }
     },
     addPathHistory () {
+      const path = require('path')
       const pathInfo = {
-        path: this.booksPath,
+        path: path.resolve(this.booksPath),
         time: Date.now()
       }
       const getPathInfo = this.$db.get('pathHistoryDataDB')
-        .find({ path: this.booksPath })
+        .find({ path: pathInfo.path })
         .value()
       if (getPathInfo === undefined) {
         this.$db.get('pathHistoryDataDB')
@@ -139,8 +141,10 @@ export default {
       }
     },
     updatePathHistory () {
+      const path = require('path')
+      const resolveBooksPath = path.resolve(this.booksPath)
       this.$db.get('pathHistoryDataDB')
-        .find({ path: this.booksPath })
+        .find({ path: resolveBooksPath })
         .assign({
           time: Date.now()
         })
@@ -158,6 +162,10 @@ export default {
     },
     // 遍历当前目录下的所有PDF文件
     listingFile (filePath) {
+      // 空路径不进行搜索
+      if (filePath === '') {
+        return
+      }
       this.isLoading = true
       const fs = require('fs')
       const path = require('path')
