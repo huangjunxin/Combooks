@@ -125,11 +125,13 @@ export default {
         this.addPathHistory()
       }
     },
+    // 增加一条历史路径记录
     addPathHistory () {
+      const moment = require('moment')
       const path = require('path')
       const pathInfo = {
         path: path.resolve(this.booksPath),
-        time: Date.now()
+        time: moment().format('YYYY-MM-DD HH:mm:ss')
       }
       const getPathInfo = this.$db.get('pathHistoryDataDB')
         .find({ path: pathInfo.path })
@@ -140,13 +142,15 @@ export default {
           .write()
       }
     },
+    // 当点击某条历史路径记录时，更新其时间
     updatePathHistory () {
+      const moment = require('moment')
       const path = require('path')
       const resolveBooksPath = path.resolve(this.booksPath)
       this.$db.get('pathHistoryDataDB')
         .find({ path: resolveBooksPath })
         .assign({
-          time: Date.now()
+          time: moment().format('YYYY-MM-DD HH:mm:ss')
         })
         .value()
     },
@@ -212,7 +216,7 @@ export default {
       const fp = JSON.parse(JSON.stringify(row.filePath))
       shell.openPath(fp)
     },
-    // 点击某条路径历史记录时，则重新检索，并更新历史记录
+    // 当点击某条历史路径记录时，重新检索，并更新历史记录
     openPath (evt, row) {
       this.booksPath = row.path
       this.listingFile(row.path)

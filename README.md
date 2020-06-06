@@ -4,7 +4,7 @@ A simple local e-book(PDFs) search and management tool built by Electron and Vue
 
 一个由 Electron 和 Vue 构建的简单本地电子书搜索及管理工具。
 
-Current Version 当前版本: 0.4.22
+Current Version 当前版本: 0.4.23
 
 ## Install the dependencies
 ```bash

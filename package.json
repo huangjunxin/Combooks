@@ -15,6 +15,7 @@
     "@quasar/extras": "^1.0.0",
     "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
+    "moment": "^2.26.0",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
