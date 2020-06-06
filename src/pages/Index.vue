@@ -19,6 +19,9 @@
               <!-- <template v-slot:append>
                 <q-icon name="booksPath" />
               </template> -->
+              <template v-slot:append v-if="booksPath.length !== 0">
+                <q-icon name="close" @click="booksPath = ''" class="cursor-pointer" />
+              </template>
             </q-input>
           </q-form>
         </div>
@@ -163,6 +166,11 @@ export default {
       if (this.booksPath === '') {
         this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
       }
+    },
+    // 转换为可读文件大小
+    humanFileSize (size) {
+      var i = Math.floor(Math.log(size) / Math.log(1024))
+      return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
     },
     // 遍历当前目录下的所有PDF文件
     listingFile (filePath) {
