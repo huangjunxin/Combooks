@@ -45,7 +45,7 @@
             :columns="bookListColumns"
             :filter="filter"
             @row-click="openBook"
-            no-data-label="Please complete the input and press Enter"
+            :no-data-label="bookListNoDataInfo"
             :loading="isLoading"
           >
             <template v-slot:top-right v-if="booksPath.length !== 0">
@@ -87,6 +87,7 @@ export default {
           sortable: true
         }
       ],
+      bookListNoDataInfo: 'Please complete the input and press Enter',
       pathHistoryData: [],
       pathHistoryColumns: [
         {
@@ -116,11 +117,7 @@ export default {
   methods: {
     // 当路径框提交内容时
     onSubmit () {
-      if (this.lastBooksPath === '') {
-        this.lastBooksPath = this.booksPath
-        this.listingFile(this.booksPath)
-        this.addPathHistory()
-      } else if (this.lastBooksPath !== this.booksPath) {
+      if (this.lastBooksPath === '' || this.lastBooksPath !== this.booksPath) {
         this.lastBooksPath = this.booksPath
         this.listingFile(this.booksPath)
         this.addPathHistory()
@@ -152,6 +149,7 @@ export default {
     onChange () {
       this.bookListData = []
       this.lastBooksPath = ''
+      this.bookListNoDataInfo = 'Please complete the input and press Enter'
       // 若路径框的内容为空，则将路径历史从数据库重新取出
       if (this.booksPath === '') {
         this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
@@ -165,7 +163,7 @@ export default {
       fs.readdir(filePath, (err, file) => {
         if (err) {
           this.isLoading = false
-          return alert(err)
+          this.bookListNoDataInfo = 'No such file or directory'
         }
         for (const fileName of file) {
           const stat = fs.statSync(path.join(filePath, fileName))
@@ -190,6 +188,9 @@ export default {
           } else {
             // 递归遍历子文件夹
             this.listingFile(path.join(filePath, fileName))
+          }
+          if (this.bookListData.length === 0) {
+            this.bookListNoDataInfo = 'No PDF found'
           }
         }
         this.isLoading = false
