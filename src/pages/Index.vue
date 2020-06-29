@@ -41,9 +41,11 @@
 
           <vxe-table
             border
+            highlight-hover-row
             highlight-hover-column
             :data="pathHistoryData"
             @cell-click="openPath"
+            row-id="id"
             :sort-config="{trigger: 'cell', defaultSort: {field: 'time', order: 'desc'}, orders: ['desc', 'asc']}">
             <vxe-table-column field="path" title="Path"></vxe-table-column>
             <vxe-table-column field="time" title="Time" width="170" sortable></vxe-table-column>
@@ -69,6 +71,7 @@
               </q-input>
             </template>
           </q-table>
+
         </div>
       </div>
     </div>
@@ -247,10 +250,13 @@ export default {
     openPath ({ column, row }) {
       console.info('[method][openPath]')
       if (column.property === 'path') {
+        console.info('[method][openPath]: column.property === \'path\'')
         this.booksPath = row.path
         this.bookListData = []
         this.listingFile(row.path)
         this.updatePathHistory()
+      } else {
+        console.info('[method][openPath]: else')
       }
     }
   }
