@@ -16,7 +16,9 @@
     "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
     "moment": "^2.26.0",
-    "quasar": "^1.0.0"
+    "quasar": "^1.0.0",
+    "vxe-table": "^2.9.14",
+    "xe-utils": "^2.5.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",

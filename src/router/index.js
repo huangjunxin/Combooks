@@ -7,6 +7,15 @@ import routes from './routes'
 import db from '../datastore'
 Vue.prototype.$db = db
 
+// 引入vxe-table
+import 'xe-utils'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/index.css'
+
+Vue.use(VXETable)
+
+Vue.prototype.$modal = VXETable.modal
+
 Vue.use(VueRouter)
 
 /*

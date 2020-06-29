@@ -29,18 +29,28 @@
         <div style="height: 10px">
         </div>
 
-        <div class="q-ma-md" v-show="booksPath.length === 0">
-          <q-table
+        <div class="q-ma-md" v-if="booksPath.length === 0">
+          <!-- <q-table
             title="Path History"
             :data="pathHistoryData"
             :columns="pathHistoryColumns"
             @row-click="openPath"
             no-data-label="No History"
             :pagination="initPathHistory"
-            binary-state-sort />
+            binary-state-sort /> -->
+
+          <vxe-table
+            border
+            highlight-hover-column
+            :data="pathHistoryData"
+            @cell-click="openPath"
+            :sort-config="{trigger: 'cell', defaultSort: {field: 'time', order: 'desc'}, orders: ['desc', 'asc']}">
+            <vxe-table-column field="path" title="Path"></vxe-table-column>
+            <vxe-table-column field="time" title="Time" width="170" sortable></vxe-table-column>
+          </vxe-table>
         </div>
 
-        <div class="q-ma-md" v-show="booksPath.length !== 0">
+        <div class="q-ma-md" v-if="booksPath.length !== 0">
           <!-- <div>共有 {{bookListData.length}} 条记录</div> -->
           <q-table
             title="PDFs List"
@@ -115,7 +125,9 @@ export default {
     }
   },
   mounted () {
+    console.info('[mounted]')
     this.pathHistoryData = this.$db.get('pathHistoryDataDB').value()
+    // this.pathHistoryData = window.MOCK_DATA_LIST.slice(0, 50)
     // 仅调试时启用
     // window.vue = this
   },
@@ -130,6 +142,7 @@ export default {
     },
     // 增加一条历史路径记录
     addPathHistory () {
+      console.info('[method][addPathHistory]')
       const moment = require('moment')
       const path = require('path')
       const pathInfo = {
@@ -143,10 +156,13 @@ export default {
         this.$db.get('pathHistoryDataDB')
           .insert(pathInfo)
           .write()
+      } else {
+        this.updatePathHistory()
       }
     },
     // 当点击某条历史路径记录时，更新其时间
     updatePathHistory () {
+      console.info('[method][updatePathHistory]')
       const moment = require('moment')
       const path = require('path')
       const resolveBooksPath = path.resolve(this.booksPath)
@@ -155,10 +171,11 @@ export default {
         .assign({
           time: moment().format('YYYY-MM-DD HH:mm:ss')
         })
-        .value()
+        .write()
     },
     // 当路径框的内容发生变化时
     onChange () {
+      console.info('[method][onChange]')
       this.bookListData = []
       this.lastBooksPath = ''
       this.bookListNoDataInfo = 'Please complete the input and press Enter'
@@ -174,6 +191,7 @@ export default {
     },
     // 遍历当前目录下的所有PDF文件
     listingFile (filePath) {
+      console.info('[method][listingFile]')
       // 空路径不进行搜索
       if (filePath === '') {
         return
@@ -220,15 +238,20 @@ export default {
     },
     // 点击表格行以打开电子书
     openBook (evt, row) {
+      console.info('[method][openBook]')
       const { shell } = require('electron')
       const fp = JSON.parse(JSON.stringify(row.filePath))
       shell.openPath(fp)
     },
     // 当点击某条历史路径记录时，重新检索，并更新历史记录
-    openPath (evt, row) {
-      this.booksPath = row.path
-      this.listingFile(row.path)
-      this.updatePathHistory()
+    openPath ({ column, row }) {
+      console.info('[method][openPath]')
+      if (column.property === 'path') {
+        this.booksPath = row.path
+        this.bookListData = []
+        this.listingFile(row.path)
+        this.updatePathHistory()
+      }
     }
   }
 }
