@@ -15,7 +15,7 @@
           Combooks
         </q-toolbar-title>
 
-        <div>v0.4.28</div>
+        <div>v0.4.31</div>
       </q-toolbar>
     </q-header>
 
