@@ -21,7 +21,7 @@
     "xe-utils": "^2.5.0"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0",
+    "@quasar/app": "^3.3.3",
     "babel-eslint": "^10.0.1",
     "devtron": "^1.4.0",
     "electron": "^9.0.1",
